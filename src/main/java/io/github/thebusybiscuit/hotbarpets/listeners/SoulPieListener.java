@@ -11,7 +11,7 @@ import io.github.thebusybiscuit.hotbarpets.HotbarPet;
 import io.github.thebusybiscuit.hotbarpets.HotbarPets;
 import io.github.thebusybiscuit.slimefun4.utils.SlimefunUtils;
 import io.github.thebusybiscuit.slimefun4.api.items.SlimefunItem;
-import io.github.thebusybiscuit.slimefun4.libraries.dough.items.CustomItemStack;
+import org.bukkit.inventory.meta.ItemMeta;
 
 public class SoulPieListener implements Listener {
 
@@ -32,7 +32,11 @@ public class SoulPieListener implements Listener {
                 ItemStack item = p.getInventory().getItem(i);
 
                 if (eyamaz != null && SlimefunUtils.isItemSimilar(item, eyamaz.getItem(), true)) {
-                    e.getEntity().getLocation().getWorld().dropItemNaturally(e.getEntity().getLocation(), new CustomItemStack(new ItemStack(Material.PUMPKIN_PIE), "&bSoul Pie"));
+                    ItemStack pie = new ItemStack(Material.PUMPKIN_PIE);
+                    ItemMeta meta = pie.getItemMeta();
+                    meta.setDisplayName(org.bukkit.ChatColor.translateAlternateColorCodes('&', "&bSoul Pie"));
+                    pie.setItemMeta(meta);
+                    e.getEntity().getLocation().getWorld().dropItemNaturally(e.getEntity().getLocation(), pie);
                 }
             }
         }

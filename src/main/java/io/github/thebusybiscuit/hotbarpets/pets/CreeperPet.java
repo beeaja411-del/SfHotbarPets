@@ -24,7 +24,7 @@ public class CreeperPet extends SimpleBasePet {
 
     @Override
     public void onUseItem(Player p) {
-        TNTPrimed tnt = (TNTPrimed) p.getWorld().spawnEntity(p.getLocation(), EntityType.PRIMED_TNT);
+        TNTPrimed tnt = (TNTPrimed) p.getWorld().spawnEntity(p.getLocation(), EntityType.TNT);
         tnt.setMetadata("hotbarpets_player", new FixedMetadataValue(plugin, p.getUniqueId()));
         tnt.setFuseTicks(0);
 

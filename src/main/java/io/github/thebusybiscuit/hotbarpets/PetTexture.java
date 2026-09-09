@@ -1,8 +1,11 @@
 package io.github.thebusybiscuit.hotbarpets;
 
-import io.github.thebusybiscuit.slimefun4.libraries.dough.skins.PlayerHead;
-import io.github.thebusybiscuit.slimefun4.libraries.dough.skins.PlayerSkin;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.meta.SkullMeta;
+import org.bukkit.Material;
+import java.lang.reflect.Field;
+import java.util.UUID;
+import java.util.Base64;
 
 import javax.annotation.Nonnull;
 
@@ -76,6 +79,21 @@ public enum PetTexture {
 
     @Nonnull
     public ItemStack getAsItem() {
-        return PlayerHead.getItemStack(PlayerSkin.fromHashCode(getHash()));
+        ItemStack head = new ItemStack(Material.PLAYER_HEAD);
+        SkullMeta meta = (SkullMeta) head.getItemMeta();
+        try {
+            Object profile = Class.forName("com.mojang.authlib.GameProfile").getConstructor(UUID.class, String.class).newInstance(UUID.randomUUID(), null);
+            Object propertyMap = profile.getClass().getMethod("getProperties").invoke(profile);
+            String encodedData = Base64.getEncoder().encodeToString(String.format("{\"textures\":{\"SKIN\":{\"url\":\"http://textures.minecraft.net/texture/%s\"}}}", getHash()).getBytes());
+            Object property = Class.forName("com.mojang.authlib.properties.Property").getConstructor(String.class, String.class).newInstance("textures", encodedData);
+            propertyMap.getClass().getMethod("put", Object.class, Object.class).invoke(propertyMap, "textures", property);
+            Field profileField = meta.getClass().getDeclaredField("profile");
+            profileField.setAccessible(true);
+            profileField.set(meta, profile);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        head.setItemMeta(meta);
+        return head;
     }
 }

@@ -22,8 +22,9 @@ import io.github.thebusybiscuit.hotbarpets.listeners.TNTListener;
 import io.github.thebusybiscuit.slimefun4.api.SlimefunAddon;
 import io.github.thebusybiscuit.slimefun4.api.items.ItemGroup;
 import io.github.thebusybiscuit.slimefun4.libraries.dough.config.Config;
-import io.github.thebusybiscuit.slimefun4.libraries.dough.items.CustomItemStack;
 import io.github.thebusybiscuit.slimefun4.libraries.dough.updater.GitHubBuildsUpdater;
+import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.meta.ItemMeta;
 
 public class HotbarPets extends JavaPlugin implements Listener, SlimefunAddon {
 
@@ -40,7 +41,14 @@ public class HotbarPets extends JavaPlugin implements Listener, SlimefunAddon {
             new GitHubBuildsUpdater(this, getFile(), "TheBusyBiscuit/HotbarPets/master").start();
         }
 
-        itemGroup = new ItemGroup(new NamespacedKey(this, "pets"), new CustomItemStack(PetTexture.CATEGORY.getAsItem(), "&dHotbar Pets", "", "&a> Click to open"));
+        ItemStack categoryItem = PetTexture.CATEGORY.getAsItem().clone();
+        ItemMeta meta = categoryItem.getItemMeta();
+        meta.setDisplayName(org.bukkit.ChatColor.translateAlternateColorCodes('&', "&dHotbar Pets"));
+        java.util.List<String> lore = new java.util.ArrayList<>();
+        lore.add(org.bukkit.ChatColor.translateAlternateColorCodes('&', "&a> Click to open"));
+        meta.setLore(lore);
+        categoryItem.setItemMeta(meta);
+        itemGroup = new ItemGroup(new NamespacedKey(this, "pets"), categoryItem);
 
         // Add all the Pets via their Group class
         new FarmAnimals(this);
@@ -76,5 +84,17 @@ public class HotbarPets extends JavaPlugin implements Listener, SlimefunAddon {
     @Override
     public JavaPlugin getJavaPlugin() {
         return this;
+    }
+
+    public static org.bukkit.inventory.ItemStack convert(Object sfItem) {
+        if (sfItem == null) return null;
+        try {
+            java.lang.reflect.Method m = sfItem.getClass().getMethod("serialize");
+            java.util.Map<String, Object> map = (java.util.Map<String, Object>) m.invoke(sfItem);
+            return org.bukkit.inventory.ItemStack.deserialize(map);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return null;
+        }
     }
 }
